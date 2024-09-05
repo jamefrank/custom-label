@@ -1,0 +1,4 @@
+/home/frank/github/custom-label/build/CMakeFiles/MyLabel.dir
+/home/frank/github/custom-label/build/CMakeFiles/edit_cache.dir
+/home/frank/github/custom-label/build/CMakeFiles/rebuild_cache.dir
+/home/frank/github/custom-label/build/CMakeFiles/MyLabel_autogen.dir
