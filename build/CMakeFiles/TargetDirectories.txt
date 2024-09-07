@@ -1,4 +1,10 @@
-/home/frank/github/custom-label/build/CMakeFiles/MyLabel.dir
-/home/frank/github/custom-label/build/CMakeFiles/edit_cache.dir
-/home/frank/github/custom-label/build/CMakeFiles/rebuild_cache.dir
-/home/frank/github/custom-label/build/CMakeFiles/MyLabel_autogen.dir
+/home/frank/data/github/custom-label/build/CMakeFiles/edit_cache.dir
+/home/frank/data/github/custom-label/build/CMakeFiles/rebuild_cache.dir
+/home/frank/data/github/custom-label/build/demo-label/CMakeFiles/MyLabel.dir
+/home/frank/data/github/custom-label/build/demo-label/CMakeFiles/edit_cache.dir
+/home/frank/data/github/custom-label/build/demo-label/CMakeFiles/rebuild_cache.dir
+/home/frank/data/github/custom-label/build/demo-label/CMakeFiles/MyLabel_autogen.dir
+/home/frank/data/github/custom-label/build/calib-plugin/CMakeFiles/calib_plugin.dir
+/home/frank/data/github/custom-label/build/calib-plugin/CMakeFiles/edit_cache.dir
+/home/frank/data/github/custom-label/build/calib-plugin/CMakeFiles/rebuild_cache.dir
+/home/frank/data/github/custom-label/build/calib-plugin/CMakeFiles/calib_plugin_autogen.dir
