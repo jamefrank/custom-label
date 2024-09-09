@@ -180,8 +180,14 @@ void CheckTreeView::contextMenuEvent(QContextMenuEvent *event) {
 }
 
 bool CheckTreeView::_isValidNameFilter(const QString &filterString, QStringList &filters) {
+//
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    const auto skip_empty_parts = Qt::SkipEmptyParts;
+#else
+    const auto skip_empty_parts = QString::SkipEmptyParts;
+#endif
     // 使用分号分割字符串
-    filters = filterString.split(QLatin1Char(';'), Qt::SkipEmptyParts);
+    filters = filterString.split(QLatin1Char(';'), skip_empty_parts);
 
     // 定义正则表达式来匹配后缀名模式
     QRegExp validPattern("^\\*\\.[a-zA-Z0-9]+$");
