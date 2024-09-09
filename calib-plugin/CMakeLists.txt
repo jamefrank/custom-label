@@ -13,16 +13,22 @@ find_package(Qt5 COMPONENTS
         Designer
         REQUIRED)
  
-# include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+file(GLOB QT_FORMS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.ui)
+file(GLOB QT_RESOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} resources/*.qrc)
+file(GLOB_RECURSE QT_MOC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS include/*.h)
+file(GLOB_RECURSE QT_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS src/*.cpp)
+file(GLOB_RECURSE Q_PLUGIN RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS plugin/*.*)
  
-# aux_source_directory(${PROJECT_SOURCE_DIR}/src SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR} SRCS)
-file(GLOB QRCS "*.qrc")
  
-add_library(${LIBRARY_NAME} SHARED
-        ${SRCS}
-        ${QRCS})
+add_library(${LIBRARY_NAME} SHARED 
+        ${QT_SOURCES} 
+        ${QT_MOC}
+        ${Q_PLUGIN}
+        ${QT_FORMS}
+        ${QT_RESOURCES}
+        )
  
 target_link_libraries(${LIBRARY_NAME} PUBLIC
         Qt5::Core

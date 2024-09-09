@@ -2,6 +2,6 @@
 
 include(CMakeFindDependencyMacro)
 
-find_dependency(Qt5)
+find_dependency(Qt5 COMPONENTS Core Gui Widgets Designer)
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")

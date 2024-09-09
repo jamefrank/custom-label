@@ -1,7 +1,11 @@
 #include "CheckTreeView.h"
 
+#include <QAction>
 #include <QApplication>
+#include <QContextMenuEvent>
+#include <QDebug>
 #include <QFileInfo>
+#include <QMenu>
 #include <QRegExp>
 #include <QString>
 
@@ -110,7 +114,11 @@ Qt::CheckState CustomModel::getCheckStateAccordingToChildren(const QModelIndex &
     return checkState;
 }
 
-CheckTreeView::CheckTreeView(QWidget *parent) : QTreeView(parent), folder_path_(""), filter_list_("") {}
+CheckTreeView::CheckTreeView(QWidget *parent) : QTreeView(parent), folder_path_(""), filter_list_("") {
+    this->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    //
+    // this->setContextMenuPolicy(Qt::CustomContextMenu);
+}
 
 CheckTreeView::~CheckTreeView() {}
 
@@ -131,17 +139,45 @@ void CheckTreeView::setFolderPath(const QString &path) {
     //
     folder_path_ = path;
     CustomModel *model = new CustomModel();
-    model->setFilter(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
+    // QFileSystemModel *model = new QFileSystemModel;
+    model->setReadOnly(true);
+    model->setFilter(QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);  //不建议直接全选，所以配置为QDir::NoDotAndDotDot
     if (is_valid) model->setNameFilters(valid_filter_list);
-    model->setRootPath(QDir::rootPath());
+    model->setRootPath(folder_path_);
     model->setResolveSymlinks(true);
     this->setModel(model);
+    this->setRootIndex(model->index(folder_path_));
     for (int i = 1; i < model->columnCount(); ++i) this->hideColumn(i);
 }
 
 QString CheckTreeView::filterList() const { return filter_list_; }
 
 void CheckTreeView::setFilterList(const QString &filter_list) { filter_list_ = filter_list; }
+
+QVector<QString> CheckTreeView::selectedFiles() const {
+    QVector<QString> selected_files;
+
+    CustomModel *model = static_cast<CustomModel *>(this->model());
+    if (nullptr == model) return selected_files;
+    foreach (QModelIndex index, selected_indexes_) {
+        selected_files.push_back(model->filePath(index));
+    }
+    return selected_files;
+}
+
+void CheckTreeView::contextMenuEvent(QContextMenuEvent *event) {
+    QMenu contextMenu(tr("Context Menu"), this);
+
+    QAction action1("select", this);
+    connect(&action1, &QAction::triggered, this, &CheckTreeView::_slotSelect);
+    contextMenu.addAction(&action1);
+
+    QAction action2("reset", this);
+    connect(&action2, &QAction::triggered, this, &CheckTreeView::_slotReset);
+    contextMenu.addAction(&action2);
+
+    contextMenu.exec(event->globalPos());
+}
 
 bool CheckTreeView::_isValidNameFilter(const QString &filterString, QStringList &filters) {
     // 使用分号分割字符串
@@ -158,4 +194,20 @@ bool CheckTreeView::_isValidNameFilter(const QString &filterString, QStringList 
     }
 
     return !filters.isEmpty();  // 至少有一个有效的后缀名
+}
+
+void CheckTreeView::_slotSelect() {
+    QItemSelectionModel *selections = this->selectionModel();
+    if (selections == nullptr) return;
+    QModelIndexList indexes = selections->selectedIndexes();  //得到所有选中的index
+    foreach (QModelIndex index, indexes) {
+        this->model()->setData(index, Qt::Checked, Qt::CheckStateRole);
+        selected_indexes_.insert(index);
+    }
+}
+
+void CheckTreeView::_slotReset() {
+    foreach (QModelIndex index, selected_indexes_) {
+        this->model()->setData(index, Qt::Unchecked, Qt::CheckStateRole);
+    }
 }

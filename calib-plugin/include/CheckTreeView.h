@@ -40,10 +40,18 @@ class CheckTreeView : public QTreeView {
     QString filterList() const;
     void setFilterList(const QString &filter_list);
 
+    QVector<QString> selectedFiles() const;
+
+   protected:
+    void contextMenuEvent(QContextMenuEvent *event);
+
    private:
     bool _isValidNameFilter(const QString &filterString, QStringList &filters);
+    void _slotSelect();
+    void _slotReset();
 
    private:
     QString folder_path_;
     QString filter_list_;
+    QSet<QModelIndex> selected_indexes_;
 };

@@ -6,7 +6,7 @@ CheckTreeViewPlugin::CheckTreeViewPlugin(QObject *parent) {}
 
 QString CheckTreeViewPlugin::name() const { return "CheckTreeView"; }
 
-QString CheckTreeViewPlugin::includeFile() const { return "/home/frank/data/github/custom-label/calib-plugin/CheckTreeView.h"; }
+QString CheckTreeViewPlugin::includeFile() const { return "CheckTreeView.h"; }
 
 QString CheckTreeViewPlugin::group() const { return tr("Custom Widgets"); }
 
