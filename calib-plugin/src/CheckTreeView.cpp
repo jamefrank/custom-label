@@ -13,7 +13,9 @@ CustomModel::CustomModel(QObject *parent) : QFileSystemModel(parent) {}
 
 QVariant CustomModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::CheckStateRole) {
+        // qDebug() << "contains: " << checklist.contains(index);
         if (checklist.contains(index)) {
+            // qDebug() << "contains: " << checklist[index];
             return checklist[index];
         } else {
             return Qt::Unchecked;
@@ -29,6 +31,7 @@ bool CustomModel::setData(const QModelIndex &index, const QVariant &value, int r
     if (role == Qt::CheckStateRole) {
         setNodeCheckState(index, value, role);
         setParentNodeCheckState(index);
+        emit dataChanged(index, index, {role});
     }
     this->setReadOnly(false);
     QApplication::restoreOverrideCursor();
@@ -116,6 +119,7 @@ Qt::CheckState CustomModel::getCheckStateAccordingToChildren(const QModelIndex &
 
 CheckTreeView::CheckTreeView(QWidget *parent) : QTreeView(parent), folder_path_(""), filter_list_("") {
     this->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    this->setSelectionBehavior(QAbstractItemView::SelectRows);
     //
     // this->setContextMenuPolicy(Qt::CustomContextMenu);
 }
@@ -148,6 +152,8 @@ void CheckTreeView::setFolderPath(const QString &path) {
     this->setModel(model);
     this->setRootIndex(model->index(folder_path_));
     for (int i = 1; i < model->columnCount(); ++i) this->hideColumn(i);
+
+    connect(this->model(), &QAbstractItemModel::dataChanged, this, &CheckTreeView::_slotDataChanged);
 }
 
 QString CheckTreeView::filterList() const { return filter_list_; }
@@ -163,6 +169,15 @@ QVector<QString> CheckTreeView::selectedFiles() const {
         selected_files.push_back(model->filePath(index));
     }
     return selected_files;
+}
+
+QVector<int> CheckTreeView::selectedRows() const {
+    QVector<int> selected_rows;
+    foreach (QModelIndex index, selected_indexes_) {
+        selected_rows.push_back(index.row());
+    }
+
+    return selected_rows;
 }
 
 void CheckTreeView::contextMenuEvent(QContextMenuEvent *event) {
@@ -205,10 +220,9 @@ bool CheckTreeView::_isValidNameFilter(const QString &filterString, QStringList 
 void CheckTreeView::_slotSelect() {
     QItemSelectionModel *selections = this->selectionModel();
     if (selections == nullptr) return;
-    QModelIndexList indexes = selections->selectedIndexes();  //得到所有选中的index
+    QModelIndexList indexes = selections->selectedRows();  //得到所有选中的index
     foreach (QModelIndex index, indexes) {
         this->model()->setData(index, Qt::Checked, Qt::CheckStateRole);
-        selected_indexes_.insert(index);
     }
 }
 
@@ -216,4 +230,20 @@ void CheckTreeView::_slotReset() {
     foreach (QModelIndex index, selected_indexes_) {
         this->model()->setData(index, Qt::Unchecked, Qt::CheckStateRole);
     }
+}
+
+void CheckTreeView::_slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles) {
+    if (!roles.contains(Qt::CheckStateRole)) return;
+
+    Qt::CheckState checkState = static_cast<Qt::CheckState>(this->model()->data(topLeft, Qt::CheckStateRole).toInt());
+    // qDebug() << "row:" << row << ":" << checkState;
+    if (checkState == Qt::Checked) {
+        selected_indexes_.insert(topLeft);
+    } else {
+        selected_indexes_.remove(topLeft);
+    }
+
+    // qDebug() << "selected_indexes_.size():" << selected_indexes_.size();
+
+    emit selectedChanged();
 }

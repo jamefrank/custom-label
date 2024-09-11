@@ -41,6 +41,7 @@ class CheckTreeView : public QTreeView {
     void setFilterList(const QString &filter_list);
 
     QVector<QString> selectedFiles() const;
+    QVector<int> selectedRows() const;
 
    protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -49,6 +50,10 @@ class CheckTreeView : public QTreeView {
     bool _isValidNameFilter(const QString &filterString, QStringList &filters);
     void _slotSelect();
     void _slotReset();
+    void _slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
+
+   signals:
+    void selectedChanged();
 
    private:
     QString folder_path_;
